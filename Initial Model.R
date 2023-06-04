@@ -67,9 +67,4 @@ ols_test_normality(i.mod.red)
 ols_test_breusch_pagan(i.mod.red)
 bptest(i.mod.red, studentize = FALSE)
 
-ols_leverage(i.mod.red)
-
-ols_plot_added_variable(i.mod.red)
-ols_plot_comp_plus_resid(i.mod.red)
-
 #------------------------------------------------------------
