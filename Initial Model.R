@@ -72,9 +72,4 @@ ols_leverage(i.mod.red)
 ols_plot_added_variable(i.mod.red)
 ols_plot_comp_plus_resid(i.mod.red)
 
-
-bc<-boxCox(i.mod.red)
-par(mfrow=c(1,1))
-(bc.power <- bc$x[which.max(bc$y)])
-
 #------------------------------------------------------------
