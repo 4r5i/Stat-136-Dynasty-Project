@@ -14,7 +14,7 @@ data_mod <- na.omit(init.data)
 str(data_mod)
 View(data_mod)
 
-#Fitting initial model with 17 Predictors
+#Fitting initial model with 15 Predictors
 i.mod <- lm(perc_votes_2019~perc_votes_2016
                 +assets_ave_perc_chg
                 +liab_ave_perc_chg
@@ -25,8 +25,8 @@ i.mod <- lm(perc_votes_2019~perc_votes_2016
                 +hum_ave_perc_chg
                 +prec_ave_perc_chg
                 +precmax_ave_prec_chg
-                +temp1_ave_perc_chg
-                +maxtemp_ave_prec_chg
+                #+temp1_ave_perc_chg
+                #+maxtemp_ave_prec_chg
                 +factor(ruling_party)
                 +factor(sex)
                 +factor(case_inv)
@@ -36,8 +36,8 @@ i.mod <- lm(perc_votes_2019~perc_votes_2016
 
 
 #Model Adequacy
-summary(i.mod) #R^2_a = 0.3522
-anova(i.mod) #MSE = 142.3
+summary(i.mod) #R^2_a = 0.3527
+anova(i.mod) #MSE = 142.2
 
 
 #Variable Selection
@@ -56,16 +56,16 @@ i.mod.red <- lm(perc_votes_2019~perc_votes_2016
             +hum_ave_perc_chg
             #+prec_ave_perc_chg
             #+precmax_ave_prec_chg
-            +temp1_ave_perc_chg
-            +maxtemp_ave_prec_chg
+            #+temp1_ave_perc_chg
+            #+maxtemp_ave_prec_chg
             #+factor(ruling_party)
-            +factor(sex)
+            #+factor(sex)
             +factor(case_inv)
             +factor(executive)
             +factor(legislative)
             ,data = data_mod)
-summary(i.mod.red) #R^2_a = 0.3606
-anova(i.mod.red) #MSE = 140.5
+summary(i.mod.red) #R^2_a = 0.3573
+anova(i.mod.red) #MSE = 141.2
 
 par(mfrow = c(2,2))
 plot(i.mod.red)
@@ -81,13 +81,12 @@ bptest(i.mod.red, studentize = FALSE)
 ols_plot_added_variable(i.mod.red)
 
 #Leverage
-sum(ols_leverage(i.mod.red)>2*11/326)
+which(ols_leverage(i.mod.red)>2*8/326)
 
 #Reference value
 2*(p/n) 
 
-View(data_mod[c(6,8,9,21,28,36,38,43,44,47,
-209,211,297,301,311,313,315,316),c(2,4)])
+View(data_mod[which(ols_leverage(i.mod.red)>2*8/326),c(2,4)])
 
 i.mod.red.out <- lm(perc_votes_2019~perc_votes_2016
                                  +assets_ave_perc_chg
@@ -99,8 +98,8 @@ i.mod.red.out <- lm(perc_votes_2019~perc_votes_2016
                                  +hum_ave_perc_chg
                                  #+prec_ave_perc_chg
                                  #+precmax_ave_prec_chg
-                                 +temp1_ave_perc_chg
-                                 +maxtemp_ave_prec_chg
+                                 #+temp1_ave_perc_chg
+                                 #+maxtemp_ave_prec_chg
                                  #+factor(ruling_party)
                                  +factor(sex)
                                  +factor(case_inv)
@@ -124,8 +123,8 @@ ols_plot_cooksd_chart(i.mod.red)
 #Multicollinearity
 str(data_mod)
 
-round(data_mod[,c(6,7,9,12,16,17,18,19,20,21,22,23)],3)
-pairs(data.frame(data_mod[,c(6,7,9,12,16,22,23)]), lower.panel = NULL)
+round(data_mod[,c(6,7,9,12,23)],3)
+pairs(data_mod[,c(6,7,9,12,23)], lower.panel = NULL)
 
 #DFFITS
 ols_plot_dffits(i.mod.red)
