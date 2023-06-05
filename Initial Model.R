@@ -72,7 +72,7 @@ plot(i.mod.red)
 
 #Diagnostic Analysis
 ols_test_normality(i.mod.red)
-ols_test_breusch_pagan(i.mod.red)
+ols_test_breusch_pagan(i.mod.red, rhs = TRUE)
 bptest(i.mod.red, studentize = FALSE)
 
 
@@ -81,16 +81,51 @@ bptest(i.mod.red, studentize = FALSE)
 ols_plot_added_variable(i.mod.red)
 
 #Leverage
-sum(ols_leverage(i.mod.red)>2*11/325)
+sum(ols_leverage(i.mod.red)>2*11/326)
 
 #Reference value
 2*(p/n) 
+
+View(data_mod[c(6,8,9,21,28,36,38,43,44,47,
+209,211,297,301,311,313,315,316),c(2,4)])
+
+i.mod.red.out <- lm(perc_votes_2019~perc_votes_2016
+                                 +assets_ave_perc_chg
+                                 #+liab_ave_perc_chg
+                                 +rev_ave_perc_chg
+                                 #+exp_ave_perc_chg
+                                 #+pi_chg
+                                 +co2_ave_perc_chg
+                                 +hum_ave_perc_chg
+                                 #+prec_ave_perc_chg
+                                 #+precmax_ave_prec_chg
+                                 +temp1_ave_perc_chg
+                                 +maxtemp_ave_prec_chg
+                                 #+factor(ruling_party)
+                                 +factor(sex)
+                                 +factor(case_inv)
+                                 +factor(executive)
+                                 +factor(legislative)
+                                 ,data = data_mod[-c(6,8,9,21,28,36,38,43,44,47,
+                                                    209,211,297,301,311,313,315,316),])
+
+predict(i.mod.red.out,data_mod[c(6,8,9,21,28,36,38,43,44,47,
+                                 209,211,297,301,311,313,315,316),c(6,7,9,12,16,17,18,19,20,21,22,23)], interval = "prediction")
+data_mod[c(6,8,9,21,28,36,38,43,44,47,
+           209,211,297,301,311,313,315,316),5]
 
 #Studentized Deleted Residuals
 ols_plot_resid_stud(i.mod.red)
 
 #Cook's Distance
 ols_plot_cooksd_chart(i.mod.red)
+
+
+#Multicollinearity
+str(data_mod)
+
+round(data_mod[,c(6,7,9,12,16,17,18,19,20,21,22,23)],3)
+pairs(data.frame(data_mod[,c(6,7,9,12,16,22,23)]), lower.panel = NULL)
 
 #DFFITS
 ols_plot_dffits(i.mod.red)
