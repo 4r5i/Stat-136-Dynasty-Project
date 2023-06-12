@@ -3,6 +3,7 @@ library(olsrr)
 library(tidyr)
 library(car)
 library(lmtest)
+library(pls)
 
 #Importing the entire data set
 init.data <- read_xlsx("FinalDataSet_AllVar.xlsx")
@@ -10,25 +11,15 @@ str(init.data)
 
 #---------------------------------------------------------
 #Removing all observations with NAs
+#---------------------------------------------------------
 data_mod <- na.omit(init.data)
 str(data_mod)
 View(data_mod)
 
-hist(data_mod$perc_votes_2019)
-library(nortest)
-ad.test(data_mod$perc_votes_2019)
-cvm.test(data_mod$perc_votes_2019)
-lillie.test(data_mod$perc_votes_2019)
-sf.test(data_mod$perc_votes_2019)
+#--------------------------------------------------------
+#Fitting initial model with 17 Predictors
+#--------------------------------------------------------
 
-hist(data_mod$perc_votes_2016)
-boxplot(data_mod$assets_ave_perc_chg)
-plot(data_mod$liab_ave_perc_chg)
-
-mean(data_mod$perc_votes_2019)
-var(data_mod$perc_votes_2019)
-
-#Fitting initial model with 15 Predictors
 i.mod <- lm(perc_votes_2019~perc_votes_2016
                 +assets_ave_perc_chg
                 +liab_ave_perc_chg
@@ -60,14 +51,53 @@ ols_plot_comp_plus_resid(i.mod)
 par(mfrow = c(2,2))
 plot(i.mod)
 
-ols_test_normality(i.mod)
-ols_test_breusch_pagan(i.mod, rhs = TRUE)
+ols_test_normality(i.mod) #Normal
+ols_test_breusch_pagan(i.mod, rhs = TRUE) #Homoscedastic
 bptest(i.mod, studentize = FALSE)
 
-durbinWatsonTest(i.mod)
+#Detecting Autocorrelation
+durbinWatsonTest(i.mod) #No Autocorrelation
 
 #Detecting Multicollinearity
-vif(i.mod)
+pairs(data_mod[, c(6:13,15,16,22,23)], lower.panel = NULL) #temp1, maxtemp, and hum have pairwise correlation
+as.matrix(vif(i.mod))
+cor_matrix <- cor(data_mod[, c(6:13,15,16,22,23)])
+eigen(cor_matrix)
+
+#Condition Number
+sqrt(max(eigen(cor_matrix)$values)/min(eigen(cor_matrix)$values)) # 10.0174
+
+#Condition Indices
+as.matrix(sqrt(max(eigen(cor_matrix)$values)/eigen(cor_matrix)$values)) #max = 10.017401
+
+#PCR
+pcr.mod <- pcr(perc_votes_2019~perc_votes_2016
+            +assets_ave_perc_chg
+            +liab_ave_perc_chg
+            +rev_ave_perc_chg
+            +exp_ave_perc_chg
+            +pi_chg
+            +co2_ave_perc_chg
+            +hum_ave_perc_chg
+            +prec_ave_perc_chg
+            +precmax_ave_prec_chg
+            +temp1_ave_perc_chg
+            +maxtemp_ave_prec_chg
+            #+factor(ruling_party)
+            #+factor(sex)
+            #+factor(case_inv)
+            #+factor(executive)
+            #+factor(legislative)
+            ,data = data_mod
+            ,scale = TRUE
+            ,validation = "CV")
+par(mfrow=c(1,3))
+validationplot(pcr.mod)
+validationplot(pcr.mod, val.type = "MSEP")
+validationplot(pcr.mod, val.type = "R2") #9 Components
+
+pcr.mod$projection
+pcr.mod$loadings
 
 #Data Matrix and condition number & index
 library(dplyr)
