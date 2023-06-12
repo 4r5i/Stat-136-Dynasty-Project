@@ -122,6 +122,9 @@ i.mod_out <- lm(perc_votes_2019~perc_votes_2016
 data_mod[c(11,29,43,46,47,56,66,101,168,202,243,309,311,316,319), 5]
 predict(i.mod_out, data_mod[c(11,29,43,46,47,56,66,101,168,202,243,309,311,316,319), c(6:21, 23)], interval = "prediction")
 
+#------------------------------------------------------
+#Fitting a model with removed outliers and influential obs
+#------------------------------------------------------
 i.mod1 <- lm(perc_votes_2019~perc_votes_2016
                 +assets_ave_perc_chg
                 +liab_ave_perc_chg
@@ -207,14 +210,16 @@ bptest(i.mod1_red, studentize = FALSE)
 durbinWatsonTest(i.mod1_red) #No Autocorrelation
 
 #Detecting Multicollinearity
-pairs(data_mod[, c(6:16)], lower.panel = NULL) 
 as.matrix(vif(i.mod1_red))
+cor_matrix2 <- cor(data_mod[-c(29,43,47,243,311,316), c(6,8,10,11)])
+eigen(cor_matrix)
+
 
 #Condition Number
-sqrt(max(eigen(cor_matrix1)$values)/min(eigen(cor_matrix)$values)) #7.82657
+sqrt(max(eigen(cor_matrix2)$values)/min(eigen(cor_matrix2)$values)) #7.82657
 
 #Condition Indices
-as.matrix(sqrt(max(eigen(cor_matrix1)$values)/eigen(cor_matrix)$values)) #max = 7.826570
+as.matrix(sqrt(max(eigen(cor_matrix2)$values)/eigen(cor_matrix2)$values)) #max = 7.826570
 
 
 
