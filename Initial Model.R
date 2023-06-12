@@ -86,7 +86,8 @@ which(!is.na(ols_plot_cooksd_chart(i.mod)[[1]][,5]))
 # 11 29 43 46 47 56 66 101 168 202 243 309 311 316 319
 which(!is.na(ols_plot_dffits(i.mod)[[1]][,5]))
 # 11 29 43 46 47 56 66 101 168 202 243 309 311 316 319
-which(!is.na(ols_plot_dffits(i.mod)[[1]][,5]))
+
+ols_plot_dfbetas(i.mod)
 #perc_votes_2016: 2 17 22 24 25 43 44 46 47 55 66 77 78 85 97 115 140 145 162 177 187 202 204 209 286 309 312 319
 #assets_ave_perc_chg: 6 9 17 21 28 29 30 33 44 47 48 56 242 286 319
 #liab_ave_perc_chg: 28 29
