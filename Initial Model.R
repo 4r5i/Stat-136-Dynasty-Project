@@ -62,6 +62,7 @@ bptest(i.mod, studentize = FALSE)
 durbinWatsonTest(i.mod) #No Autocorrelation
 
 #Detecting Multicollinearity
+vif(i.mod)
 pairs(data_mod[, c(6:16)], lower.panel = NULL) 
 as.matrix(vif(i.mod))
 cor_matrix <- cor(data_mod[, c(6:16)])
@@ -140,8 +141,8 @@ i.mod1 <- lm(perc_votes_2019~perc_votes_2016
                 +factor(legislative)
                 ,data = data_mod[-c(29,43,47,243,311,316),])
 
-summary(i.mod1)
-anova(i.mod1)
+summary(i.mod1) #R^2_a = 0.3541
+anova(i.mod1) #MSE = 140.6
 
 #Detecting Nonnormality and Heteroscedascticity
 ols_plot_added_variable(i.mod1)
@@ -150,40 +151,47 @@ ols_test_breusch_pagan(i.mod1, rhs = TRUE) #Homoscedastic
 bptest(i.mod1, studentize = FALSE)
 
 #Detecting Autocorrelation
-durbinWatsonTest(i.mod) #No Autocorrelation
+durbinWatsonTest(i.mod1) #No Autocorrelation
 
 #Detecting Multicollinearity
+vif(i.mod1)
 pairs(data_mod[, c(6:16)], lower.panel = NULL) 
 as.matrix(vif(i.mod))
-cor_matrix <- cor(data_mod[-c(29,43,47,243,311,316), c(6:16)])
+cor_matrix1 <- cor(data_mod[-c(29,43,47,243,311,316), c(6:16)])
 eigen(cor_matrix)
 
 #Condition Number
-sqrt(max(eigen(cor_matrix)$values)/min(eigen(cor_matrix)$values)) #7.82657
+sqrt(max(eigen(cor_matrix1)$values)/min(eigen(cor_matrix1)$values)) #8.046593
 
 #Condition Indices
-as.matrix(sqrt(max(eigen(cor_matrix)$values)/eigen(cor_matrix)$values)) #max = 7.826570
+as.matrix(sqrt(max(eigen(cor_matrix1)$values)/eigen(cor_matrix1)$values)) #max = 8.046593
 
 
 #------------------------------------------------------
 #Variable Selection
 #------------------------------------------------------
 ols_step_forward_p(i.mod1) #R_a^2 = 0.3620
-ols_step_backward_p(i.mod) #R_a^2 = 0.3518
-ols_step_both_p(i.mod) #R_a^2 = 0.3490
+ols_step_backward_p(i.mod) #R_a^2 = 0.3596
+ols_step_both_p(i.mod) #R_a^2 = 0.3570
 
 i.mod1_red <- lm(perc_votes_2019~perc_votes_2016
-                 +hum_ave_perc_chg
-                 +factor(executive)
-                 +factor(case_inv)
-                 +co2_ave_perc_chg
-                 +factor(legislative)
-                 +factor(sex)
-                 #+maxtemp_ave_prec_chg
-                 #+temp_ave_perc_chg
-                 +rev_ave_perc_chg
-                 +assets_ave_perc_chg
-                ,data = data_mod[-c(29,43,47,243,311,316),])
+             +assets_ave_perc_chg
+             #+liab_ave_perc_chg
+             +rev_ave_perc_chg
+             #+exp_ave_perc_chg
+             #+pi_chg
+             +co2_ave_perc_chg
+             +hum_ave_perc_chg
+             #+prec_ave_perc_chg
+             #+precmax_ave_prec_chg
+             #+temp_ave_perc_chg
+             #+maxtemp_ave_prec_chg
+             #+factor(ruling_party)
+             +factor(sex)
+             +factor(case_inv)
+             +factor(executive)
+             +factor(legislative)
+             ,data = data_mod[-c(29,43,47,243,311,316),])
 
 summary(i.mod1_red) #R_a^2 = 0.3597
 anova(i.mod1_red) #MSE = 139.4
@@ -196,19 +204,17 @@ ols_test_breusch_pagan(i.mod1_red, rhs = TRUE) #Heteroscedastic
 bptest(i.mod1_red, studentize = FALSE)
 
 #Detecting Autocorrelation
-durbinWatsonTest(i.mod) #No Autocorrelation
+durbinWatsonTest(i.mod1_red) #No Autocorrelation
 
 #Detecting Multicollinearity
 pairs(data_mod[, c(6:16)], lower.panel = NULL) 
-as.matrix(vif(i.mod))
-cor_matrix <- cor(data_mod[-c(29,43,47,243,311,316), c(6:16)])
-eigen(cor_matrix)
+as.matrix(vif(i.mod1_red))
 
 #Condition Number
-sqrt(max(eigen(cor_matrix)$values)/min(eigen(cor_matrix)$values)) #7.82657
+sqrt(max(eigen(cor_matrix1)$values)/min(eigen(cor_matrix)$values)) #7.82657
 
 #Condition Indices
-as.matrix(sqrt(max(eigen(cor_matrix)$values)/eigen(cor_matrix)$values)) #max = 7.826570
+as.matrix(sqrt(max(eigen(cor_matrix1)$values)/eigen(cor_matrix)$values)) #max = 7.826570
 
 
 
