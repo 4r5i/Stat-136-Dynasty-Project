@@ -4,6 +4,7 @@ library(tidyr)
 library(car)
 library(lmtest)
 library(pls)
+library(dplyr)
 
 #Importing the entire data set
 init.data <- read_xlsx("FinalDataSet_AllVar.xlsx")
@@ -19,7 +20,6 @@ View(data_mod)
 #--------------------------------------------------------
 #Fitting initial model with 17 Predictors
 #--------------------------------------------------------
-
 i.mod <- lm(perc_votes_2019~perc_votes_2016
                 +assets_ave_perc_chg
                 +liab_ave_perc_chg
@@ -62,14 +62,14 @@ bptest(i.mod, studentize = FALSE)
 durbinWatsonTest(i.mod) #No Autocorrelation
 
 #Detecting Multicollinearity
-vif(i.mod)
-pairs(data_mod[, c(6:16)], lower.panel = NULL) 
 as.matrix(vif(i.mod))
+
+pairs(data_mod[, c(6:16)], lower.panel = NULL) 
 cor_matrix <- cor(data_mod[, c(6:16)])
 eigen(cor_matrix)
 
 #Condition Number
-sqrt(max(eigen(cor_matrix)$values)/min(eigen(cor_matrix)$values)) #7.82657
+max(eigen(cor_matrix)$values)/min(eigen(cor_matrix)$values) #61.2552
 
 #Condition Indices
 as.matrix(sqrt(max(eigen(cor_matrix)$values)/eigen(cor_matrix)$values)) #max = 7.826570
@@ -121,7 +121,53 @@ i.mod_out <- lm(perc_votes_2019~perc_votes_2016
             +factor(legislative)
             ,data = data_mod[-c(11,29,43,46,47,56,66,101,168,202,243,309,311,316,319),])
 data_mod[c(11,29,43,46,47,56,66,101,168,202,243,309,311,316,319), 5]
-predict(i.mod_out, data_mod[c(11,29,43,46,47,56,66,101,168,202,243,309,311,316,319), c(6:21, 23)], interval = "prediction")
+
+i.mod_out <- lm(perc_votes_2019~perc_votes_2016
+                +assets_ave_perc_chg
+                +liab_ave_perc_chg
+                +rev_ave_perc_chg
+                +exp_ave_perc_chg
+                +pi_chg
+                +co2_ave_perc_chg
+                +hum_ave_perc_chg
+                +prec_ave_perc_chg
+                +precmax_ave_prec_chg
+                +temp_ave_perc_chg
+                +maxtemp_ave_prec_chg
+                +factor(ruling_party)
+                +factor(sex)
+                +factor(case_inv)
+                +factor(executive)
+                +factor(legislative)
+                ,data = data_mod[-c(29,43),])
+data_mod[c(29,43), 5]
+                    
+#1 APAYAO          CONNER                      
+#2 LANAO DEL SUR   MAROGONG                    
+#3 MAGUINDANAO     SHARIFF SAYDONA MUSTAPHA    
+#4 SULU            LUUK                        
+#5 SULU            MAIMBUNG                    
+#6 TAWI-TAWI       MAPUN (CAGAYAN DE TAWI-TAWI)
+#7 Ilocos Sur      Cabugao                     
+#8 Cagayan         Calayan                     
+#9 Rizal           Rodriguez (Montalban)       
+#10 Iloilo          Pavia                       
+#11 Eastern Samar   Sulat                       
+#12 Sultan Kudarat  Tacurong City               
+#13 Agusan del Sur  Bayugan City                
+#14 Agusan del Sur  Talacogon                   
+#15 Dinagat Islands San Jose   
+
+predict(i.mod_out, data_mod[c(29,43), c(6:21, 23)], interval = "prediction")
+
+data_mod[c(29,43,47,243,311,316),c(2,4)]
+#1 LANAO DEL SUR  MAROGONG                
+#2 MAGUINDANAO    SHARIFF SAYDONA MUSTAPHA
+#3 SULU           MAIMBUNG                
+#4 Eastern Samar  Sulat                   
+#5 Agusan del Sur Bayugan City            
+#6 Agusan del Sur Talacogon 
+
 
 #------------------------------------------------------
 #Fitting a model with removed outliers and influential obs
@@ -143,7 +189,7 @@ i.mod1 <- lm(perc_votes_2019~perc_votes_2016
                 +factor(case_inv)
                 +factor(executive)
                 +factor(legislative)
-                ,data = data_mod[-c(29,43,47,243,311,316),])
+                ,data = data_mod[-c(29,43),])
 
 summary(i.mod1) #R^2_a = 0.3541
 anova(i.mod1) #MSE = 140.6
@@ -221,6 +267,111 @@ sqrt(max(eigen(cor_matrix2)$values)/min(eigen(cor_matrix2)$values)) #7.82657
 
 #Condition Indices
 as.matrix(sqrt(max(eigen(cor_matrix2)$values)/eigen(cor_matrix2)$values)) #max = 7.826570
+
+
+
+i.mod_noTemp <- lm(perc_votes_2019~perc_votes_2016
+            +assets_ave_perc_chg
+            +liab_ave_perc_chg
+            +rev_ave_perc_chg
+            +exp_ave_perc_chg
+            +pi_chg
+            +co2_ave_perc_chg
+            +hum_ave_perc_chg
+            +prec_ave_perc_chg
+            +precmax_ave_prec_chg
+            #+temp_ave_perc_chg
+            #+maxtemp_ave_prec_chg
+            +factor(ruling_party)
+            +factor(sex)
+            +factor(case_inv)
+            +factor(executive)
+            +factor(legislative)
+            ,data = data_mod)
+
+
+#Model Adequacy
+summary(i.mod_noTemp) #R^2_a = 0.3527
+anova(i.mod_noTemp) #MSE = 142.2
+
+#Partial Regression and Partial Residual Plots
+ols_plot_added_variable(i.mod_noTemp)
+ols_plot_comp_plus_resid(i.mod_noTemp)
+
+#--------------------------------------------------------
+#Diagnostic Analysis
+#--------------------------------------------------------
+#Detecting Nonnormality and Heteroscedasticity
+par(mfrow = c(2,2))
+plot(i.mod_noTemp)
+
+ols_test_normality(i.mod_noTemp) #Normal
+ols_test_breusch_pagan(i.mod_noTemp, rhs = TRUE) #Homoscedastic
+bptest(i.mod_noTemp, studentize = FALSE)
+
+#Detecting Autocorrelation
+durbinWatsonTest(i.mod_noTemp) #No Autocorrelation
+
+#Detecting Multicollinearity
+vif(i.mod_noTemp)
+pairs(data_mod[, c(6:16)], lower.panel = NULL) 
+as.matrix(vif(i.mod_noTemp))
+cor_matrix_noTemp <- cor(data_mod[, c(6:13, 15, 23)])
+eigen(cor_matrix_noTemp)
+
+#Condition Number
+(max(eigen(cor_matrix_noTemp)$values)/min(eigen(cor_matrix_noTemp)$values)) #14.52325
+
+#Condition Indices
+as.matrix(sqrt(max(eigen(cor_matrix_noTemp)$values)/eigen(cor_matrix_noTemp)$values)) #max = 3.763925
+
+#------------------------------------------------------
+#Outliers and Influential Observations
+#------------------------------------------------------
+which(ols_leverage(i.mod_noTemp)>(2*16/326))
+# 6   8   9  21  28  29  43  47 148 297 322
+which(!is.na(ols_plot_resid_stud(i.mod_noTemp)[[1]][,5]))
+# 319
+
+which(!is.na(ols_plot_cooksd_chart(i.mod_noTemp)[[1]][,5]))
+# 11  28  29  39  43  46  47  55  56  66 101 173 243 309 319
+which(!is.na(ols_plot_dffits(i.mod)[[1]][,5]))
+# 11  29  43  46  47  56  66 101 168 202 243 309 311 316 319
+
+i.mod_out <- lm(perc_votes_2019~perc_votes_2016
+                +assets_ave_perc_chg
+                +liab_ave_perc_chg
+                +rev_ave_perc_chg
+                +exp_ave_perc_chg
+                +pi_chg
+                +co2_ave_perc_chg
+                +hum_ave_perc_chg
+                +prec_ave_perc_chg
+                +precmax_ave_prec_chg
+                +temp_ave_perc_chg
+                +maxtemp_ave_prec_chg
+                +factor(ruling_party)
+                +factor(sex)
+                +factor(case_inv)
+                +factor(executive)
+                +factor(legislative)
+                ,data = data_mod[-c(11,29,43,46,47,56,66,101,168,202,243,309,311,316,319),])
+data_mod[c(11,29,43,46,47,56,66,101,168,202,243,309,311,316,319), 5]
+predict(i.mod_out, data_mod[c(11,29,43,46,47,56,66,101,168,202,243,309,311,316,319), c(6:21, 23)], interval = "prediction")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
