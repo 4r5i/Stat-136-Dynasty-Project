@@ -39,6 +39,9 @@ i.mod <- lm(perc_votes_2019~perc_votes_2016
                 +factor(legislative)
                ,data = data_mod)
 
+bc<-boxCox(i.mod)
+bc$x[which.max(bc$y)]
+
 #Model Adequacy
 summary(i.mod) #R^2_a = 0.3503
 anova(i.mod) #MSE = 142.7
@@ -79,6 +82,17 @@ as.matrix(sqrt(max(eigen(cor_matrix)$values)/eigen(cor_matrix)$values)) #max = 7
 #------------------------------------------------------
 which(ols_leverage(i.mod)>(2*18/326))
 # 8 9 21 28 29 43 148 313 315
+
+#1 ABRA           PILAR                   
+#2 ABRA           SALLAPADAN              
+#3 LANAO DEL SUR  BUADIPOSO-BUNTONG       
+#4 LANAO DEL SUR  MAGUING                 
+#5 LANAO DEL SUR  MAROGONG                
+#6 MAGUINDANAO    SHARIFF SAYDONA MUSTAPHA
+#7 Batangas       Padre Garcia            
+#8 Agusan del Sur La Paz                  
+#9 Agusan del Sur San Luis  
+
 which(!is.na(ols_plot_resid_stud(i.mod)[[1]][,5]))
 # 319
 
@@ -102,27 +116,7 @@ ols_plot_dfbetas(i.mod)
 #maxtemp: 11 66 101 114 116 129 131 140 162 168 173 209 296 302 309 311 315 316 317 319 
 
 
-i.mod_out <- lm(perc_votes_2019~perc_votes_2016
-            +assets_ave_perc_chg
-            +liab_ave_perc_chg
-            +rev_ave_perc_chg
-            +exp_ave_perc_chg
-            +pi_chg
-            +co2_ave_perc_chg
-            +hum_ave_perc_chg
-            +prec_ave_perc_chg
-            +precmax_ave_prec_chg
-            +temp_ave_perc_chg
-            +maxtemp_ave_prec_chg
-            +factor(ruling_party)
-            +factor(sex)
-            +factor(case_inv)
-            +factor(executive)
-            +factor(legislative)
-            ,data = data_mod[-c(11,29,43,46,47,56,66,101,168,202,243,309,311,316,319),])
-data_mod[c(11,29,43,46,47,56,66,101,168,202,243,309,311,316,319), 5]
-
-i.mod_out <- lm(perc_votes_2019~perc_votes_2016
+i.mod_out1 <- lm(perc_votes_2019~perc_votes_2016
                 +assets_ave_perc_chg
                 +liab_ave_perc_chg
                 +rev_ave_perc_chg
@@ -139,101 +133,75 @@ i.mod_out <- lm(perc_votes_2019~perc_votes_2016
                 +factor(case_inv)
                 +factor(executive)
                 +factor(legislative)
-                ,data = data_mod[-c(29,43),])
-data_mod[c(29,43), 5]
-                    
-#1 APAYAO          CONNER                      
-#2 LANAO DEL SUR   MAROGONG                    
-#3 MAGUINDANAO     SHARIFF SAYDONA MUSTAPHA    
-#4 SULU            LUUK                        
-#5 SULU            MAIMBUNG                    
-#6 TAWI-TAWI       MAPUN (CAGAYAN DE TAWI-TAWI)
-#7 Ilocos Sur      Cabugao                     
-#8 Cagayan         Calayan                     
-#9 Rizal           Rodriguez (Montalban)       
-#10 Iloilo          Pavia                       
-#11 Eastern Samar   Sulat                       
-#12 Sultan Kudarat  Tacurong City               
-#13 Agusan del Sur  Bayugan City                
-#14 Agusan del Sur  Talacogon                   
-#15 Dinagat Islands San Jose   
-
-predict(i.mod_out, data_mod[c(29,43), c(6:21, 23)], interval = "prediction")
-
-data_mod[c(29,43,47,243,311,316),c(2,4)]
-#1 LANAO DEL SUR  MAROGONG                
-#2 MAGUINDANAO    SHARIFF SAYDONA MUSTAPHA
-#3 SULU           MAIMBUNG                
-#4 Eastern Samar  Sulat                   
-#5 Agusan del Sur Bayugan City            
-#6 Agusan del Sur Talacogon 
+                ,data = data_mod[-c(8,9,21,28,29,43,148,313,315,319),])
+data_mod[c(8,9,21,28,29,43,148,313,315,319), 5]
+predict(i.mod_out1, data_mod[c(8,9,21,28,29,43,148,313,315,319), c(6:21, 23)], interval = "prediction")
 
 
 #------------------------------------------------------
 #Fitting a model with removed outliers and influential obs
 #------------------------------------------------------
-i.mod1 <- lm(perc_votes_2019~perc_votes_2016
-                +assets_ave_perc_chg
-                +liab_ave_perc_chg
-                +rev_ave_perc_chg
-                +exp_ave_perc_chg
-                +pi_chg
-                +co2_ave_perc_chg
-                +hum_ave_perc_chg
-                +prec_ave_perc_chg
-                +precmax_ave_prec_chg
-                +temp_ave_perc_chg
-                +maxtemp_ave_prec_chg
-                +factor(ruling_party)
-                +factor(sex)
-                +factor(case_inv)
-                +factor(executive)
-                +factor(legislative)
-                ,data = data_mod[-c(29,43),])
-
-summary(i.mod1) #R^2_a = 0.3541
-anova(i.mod1) #MSE = 140.6
+i.mod_out1.1 <- lm(perc_votes_2019~perc_votes_2016
+                 +assets_ave_perc_chg
+                 +liab_ave_perc_chg
+                 +rev_ave_perc_chg
+                 +exp_ave_perc_chg
+                 +pi_chg
+                 +co2_ave_perc_chg
+                 +hum_ave_perc_chg
+                 +prec_ave_perc_chg
+                 +precmax_ave_prec_chg
+                 +temp_ave_perc_chg
+                 +maxtemp_ave_prec_chg
+                 +factor(ruling_party)
+                 +factor(sex)
+                 +factor(case_inv)
+                 +factor(executive)
+                 +factor(legislative)
+                 ,data = data_mod[-c(8,9,21,28,29,43,148,313,315),])
+summary(i.mod_out1.1) #R^2_a = 0.3491
+anova(i.mod_out1.1) #MSE = 143.0
 
 #Detecting Nonnormality and Heteroscedascticity
-ols_plot_added_variable(i.mod1)
-ols_test_normality(i.mod1) #Normal
-ols_test_breusch_pagan(i.mod1, rhs = TRUE) #Homoscedastic
-bptest(i.mod1, studentize = FALSE)
+ols_plot_added_variable(i.mod_out1.1)
+ols_test_normality(i.mod_out1.1) #Normal
+ols_test_breusch_pagan(i.mod_out1.1, rhs = TRUE) #Homoscedastic
+bptest(i.mod_out1.1, studentize = FALSE)
 
 #Detecting Autocorrelation
-durbinWatsonTest(i.mod1) #No Autocorrelation
+durbinWatsonTest(i.mod_out1.1) #No Autocorrelation
 
 #Detecting Multicollinearity
-vif(i.mod1)
+
 pairs(data_mod[, c(6:16)], lower.panel = NULL) 
-as.matrix(vif(i.mod))
-cor_matrix1 <- cor(data_mod[-c(29,43,47,243,311,316), c(6:16)])
-eigen(cor_matrix)
+as.matrix(vif(i.mod_out1.1))
+cor_matrix1.1 <- cor(data_mod[-c(8,9,21,28,29,43,148,313,315), c(6:16)])
+eigen(cor_matrix1.1)
 
 #Condition Number
-sqrt(max(eigen(cor_matrix1)$values)/min(eigen(cor_matrix1)$values)) #8.046593
+(max(eigen(cor_matrix1.1)$values)/min(eigen(cor_matrix1.1)$values)) #62.75431
 
 #Condition Indices
-as.matrix(sqrt(max(eigen(cor_matrix1)$values)/eigen(cor_matrix1)$values)) #max = 8.046593
+as.matrix(sqrt(max(eigen(cor_matrix1.1)$values)/eigen(cor_matrix1.1)$values)) #max = 7.921762
 
 
 #------------------------------------------------------
 #Variable Selection
 #------------------------------------------------------
-ols_step_forward_p(i.mod1) #R_a^2 = 0.3620
-ols_step_backward_p(i.mod) #R_a^2 = 0.3596
-ols_step_both_p(i.mod) #R_a^2 = 0.3570
+ols_step_forward_p(i.mod_out1.1) #R_a^2 = 0.3626
+ols_step_backward_p(i.mod_out1.1) #R_a^2 = 0.3626
+ols_step_both_p(i.mod_out1.1) #R_a^2 = 0.3580
 
 i.mod1_red <- lm(perc_votes_2019~perc_votes_2016
-             +assets_ave_perc_chg
-             #+liab_ave_perc_chg
-             +rev_ave_perc_chg
-             #+exp_ave_perc_chg
+             #+assets_ave_perc_chg
+             +liab_ave_perc_chg
+             #+rev_ave_perc_chg
+             +exp_ave_perc_chg
              #+pi_chg
              +co2_ave_perc_chg
              +hum_ave_perc_chg
              #+prec_ave_perc_chg
-             #+precmax_ave_prec_chg
+             +precmax_ave_prec_chg
              #+temp_ave_perc_chg
              #+maxtemp_ave_prec_chg
              #+factor(ruling_party)
@@ -241,16 +209,17 @@ i.mod1_red <- lm(perc_votes_2019~perc_votes_2016
              +factor(case_inv)
              +factor(executive)
              +factor(legislative)
-             ,data = data_mod[-c(29,43,47,243,311,316),])
+             ,data = data_mod[-c(8,9,21,28,29,43,148,313,315),])
 
-summary(i.mod1_red) #R_a^2 = 0.3597
-anova(i.mod1_red) #MSE = 139.4
+summary(i.mod1_red) #R_a^2 = 0.3626
+anova(i.mod1_red) #MSE = 140.1
 
 #Detecting Nonnormality and Heteroscedascticity
 plot(i.mod1_red)
 ols_plot_added_variable(i.mod1_red)
+
 ols_test_normality(i.mod1_red) #Normal
-ols_test_breusch_pagan(i.mod1_red, rhs = TRUE) #Heteroscedastic
+ols_test_breusch_pagan(i.mod1_red, rhs = TRUE) #Homoscedastic
 bptest(i.mod1_red, studentize = FALSE)
 
 #Detecting Autocorrelation
@@ -258,12 +227,12 @@ durbinWatsonTest(i.mod1_red) #No Autocorrelation
 
 #Detecting Multicollinearity
 as.matrix(vif(i.mod1_red))
-cor_matrix2 <- cor(data_mod[-c(29,43,47,243,311,316), c(6,8,10,11)])
-eigen(cor_matrix)
+cor_matrix2 <- cor(data_mod[-c(8,9,21,28,29,43,148,313,315), c(6,8,10,12,15)])
+eigen(cor_matrix2)
 
 
 #Condition Number
-sqrt(max(eigen(cor_matrix2)$values)/min(eigen(cor_matrix2)$values)) #7.82657
+max(eigen(cor_matrix2)$values)/min(eigen(cor_matrix2)$values) #1.902233
 
 #Condition Indices
 as.matrix(sqrt(max(eigen(cor_matrix2)$values)/eigen(cor_matrix2)$values)) #max = 7.826570
