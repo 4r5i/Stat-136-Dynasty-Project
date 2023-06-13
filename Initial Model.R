@@ -39,9 +39,6 @@ i.mod <- lm(perc_votes_2019~perc_votes_2016
                 +factor(legislative)
                ,data = data_mod)
 
-bc<-boxCox(i.mod)
-bc$x[which.max(bc$y)]
-
 #Model Adequacy
 summary(i.mod) #R^2_a = 0.3503
 anova(i.mod) #MSE = 142.7
@@ -68,11 +65,11 @@ durbinWatsonTest(i.mod) #No Autocorrelation
 as.matrix(vif(i.mod))
 
 pairs(data_mod[, c(6:16)], lower.panel = NULL) 
-cor_matrix <- cor(data_mod[, c(6:16)])
+cor_matrix <- cor(data_mod[, c(6:17)])
 eigen(cor_matrix)
 
 #Condition Number
-max(eigen(cor_matrix)$values)/min(eigen(cor_matrix)$values) #61.2552
+max(eigen(cor_matrix)$values)/min(eigen(cor_matrix)$values) #82.73437
 
 #Condition Indices
 as.matrix(sqrt(max(eigen(cor_matrix)$values)/eigen(cor_matrix)$values)) #max = 7.826570
@@ -95,6 +92,8 @@ which(ols_leverage(i.mod)>(2*18/326))
 
 which(!is.na(ols_plot_resid_stud(i.mod)[[1]][,5]))
 # 319
+
+#1 Dinagat Islands San Jose 
 
 which(!is.na(ols_plot_cooksd_chart(i.mod)[[1]][,5]))
 # 11 29 43 46 47 56 66 101 168 202 243 309 311 316 319
@@ -135,8 +134,30 @@ i.mod_out1 <- lm(perc_votes_2019~perc_votes_2016
                 +factor(legislative)
                 ,data = data_mod[-c(8,9,21,28,29,43,148,313,315,319),])
 data_mod[c(8,9,21,28,29,43,148,313,315,319), 5]
-predict(i.mod_out1, data_mod[c(8,9,21,28,29,43,148,313,315,319), c(6:21, 23)], interval = "prediction")
+predict(i.mod_out1, data_mod[c(8,9,21,28,29,43,148,313,315,319), c(6:22)], interval = "prediction")
 
+#perc_votes_2019
+#1            60.4
+#2            81.5
+#3            83.5
+#4            86.5
+#5            63.7
+#6            84.6
+#7            66.8
+#8            57.3
+#9            78.6
+#10            34.7
+#fit       lwr       upr
+#1  100.90670 -59.54200 261.35539
+#2   72.62350  45.22072 100.02627
+#3  143.49206  76.15751 210.82660
+#4   62.97819  35.24449  90.71188
+#5  400.53381  28.93797 772.12965
+#6  163.06595 -28.70343 354.83533
+#7   53.32418  28.31513  78.33322
+#8   54.42560  29.44850  79.40269
+#9   68.61785  43.60773  93.62796
+#10  70.44490  46.56017  94.32963
 
 #------------------------------------------------------
 #Fitting a model with removed outliers and influential obs
@@ -163,7 +184,10 @@ summary(i.mod_out1.1) #R^2_a = 0.3491
 anova(i.mod_out1.1) #MSE = 143.0
 
 #Detecting Nonnormality and Heteroscedascticity
+plot(i.mod_out1.1)
 ols_plot_added_variable(i.mod_out1.1)
+ols_plot_comp_plus_resid(i.mod_out1.1)
+
 ols_test_normality(i.mod_out1.1) #Normal
 ols_test_breusch_pagan(i.mod_out1.1, rhs = TRUE) #Homoscedastic
 bptest(i.mod_out1.1, studentize = FALSE)
@@ -173,16 +197,16 @@ durbinWatsonTest(i.mod_out1.1) #No Autocorrelation
 
 #Detecting Multicollinearity
 
-pairs(data_mod[, c(6:16)], lower.panel = NULL) 
+pairs(data_mod[-c(8,9,21,28,29,43,148,313,315), c(6:17)], lower.panel = NULL) 
 as.matrix(vif(i.mod_out1.1))
-cor_matrix1.1 <- cor(data_mod[-c(8,9,21,28,29,43,148,313,315), c(6:16)])
+cor_matrix1.1 <- cor(data_mod[-c(8,9,21,28,29,43,148,313,315), c(6:17)])
 eigen(cor_matrix1.1)
 
 #Condition Number
-(max(eigen(cor_matrix1.1)$values)/min(eigen(cor_matrix1.1)$values)) #62.75431
+(max(eigen(cor_matrix1.1)$values)/min(eigen(cor_matrix1.1)$values)) #94.07174
 
 #Condition Indices
-as.matrix(sqrt(max(eigen(cor_matrix1.1)$values)/eigen(cor_matrix1.1)$values)) #max = 7.921762
+as.matrix(sqrt(max(eigen(cor_matrix1.1)$values)/eigen(cor_matrix1.1)$values)) #max = 9.699059
 
 
 #------------------------------------------------------
@@ -227,18 +251,38 @@ durbinWatsonTest(i.mod1_red) #No Autocorrelation
 
 #Detecting Multicollinearity
 as.matrix(vif(i.mod1_red))
-cor_matrix2 <- cor(data_mod[-c(8,9,21,28,29,43,148,313,315), c(6,8,10,12,15)])
+cor_matrix2 <- cor(data_mod[-c(8,9,21,28,29,43,148,313,315), c(6,8,10,12,15,17)])
 eigen(cor_matrix2)
 
 
 #Condition Number
-max(eigen(cor_matrix2)$values)/min(eigen(cor_matrix2)$values) #1.902233
+max(eigen(cor_matrix2)$values)/min(eigen(cor_matrix2)$values) #3.498546
 
 #Condition Indices
-as.matrix(sqrt(max(eigen(cor_matrix2)$values)/eigen(cor_matrix2)$values)) #max = 7.826570
+as.matrix(sqrt(max(eigen(cor_matrix2)$values)/eigen(cor_matrix2)$values)) #max = 1.870440
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#------------------------------------------------------
+#NO TEMP
+#------------------------------------------------------
 i.mod_noTemp <- lm(perc_votes_2019~perc_votes_2016
             +assets_ave_perc_chg
             +liab_ave_perc_chg
@@ -282,10 +326,9 @@ bptest(i.mod_noTemp, studentize = FALSE)
 durbinWatsonTest(i.mod_noTemp) #No Autocorrelation
 
 #Detecting Multicollinearity
-vif(i.mod_noTemp)
 pairs(data_mod[, c(6:16)], lower.panel = NULL) 
 as.matrix(vif(i.mod_noTemp))
-cor_matrix_noTemp <- cor(data_mod[, c(6:13, 15, 23)])
+cor_matrix_noTemp <- cor(data_mod[, c(6:13, 15, 17)])
 eigen(cor_matrix_noTemp)
 
 #Condition Number
@@ -317,27 +360,77 @@ i.mod_out <- lm(perc_votes_2019~perc_votes_2016
                 +hum_ave_perc_chg
                 +prec_ave_perc_chg
                 +precmax_ave_prec_chg
-                +temp_ave_perc_chg
-                +maxtemp_ave_prec_chg
+                #+temp_ave_perc_chg
+                #+maxtemp_ave_prec_chg
                 +factor(ruling_party)
                 +factor(sex)
                 +factor(case_inv)
                 +factor(executive)
                 +factor(legislative)
-                ,data = data_mod[-c(11,29,43,46,47,56,66,101,168,202,243,309,311,316,319),])
-data_mod[c(11,29,43,46,47,56,66,101,168,202,243,309,311,316,319), 5]
-predict(i.mod_out, data_mod[c(11,29,43,46,47,56,66,101,168,202,243,309,311,316,319), c(6:21, 23)], interval = "prediction")
+                ,data = data_mod[-c(6,8,9,21,28,29,43,47,148,297,322),])
+data_mod[c(6,8,9,21,28,29,43,47,148,297,322), 5]
+predict(i.mod_out, data_mod[c(6,8,9,21,28,29,43,47,148,297,322), c(6:13,15,17:22)], interval = "prediction")
+
+
+#perc_votes_2019
+#1            62.7
+#2            60.4
+#3            81.5
+#4            83.5
+#5            86.5
+#6            63.7
+#7            84.6
+#8            96.8
+#9            66.8
+#10           80.9
+#11           52.5
+#fit       lwr       upr
+#1   68.87290  42.60267  95.14314
+#2  110.57355 -52.30308 273.45018
+#3   71.81471  43.25908 100.37034
+#4  134.96448  56.82669 213.10226
+#5   61.50082  33.05928  89.94235
+#6  358.42780 -70.53540 787.39101
+#7  170.95008 -22.53835 364.43851
+#8   84.79906  55.65894 113.93917
+#9   54.21730  28.95265  79.48195
+#10  78.01145  52.50462 103.51828
+#11  61.17140  36.05570  86.28710
+
+
+summary(i.mod_out) #R^2_a = 0.3414
+anova(i.mod_out) #MSE = 143.0
+
+#Detecting Nonnormality and Heteroscedascticity
+plot(i.mod_out)
+ols_plot_added_variable(i.mod_out)
+ols_plot_comp_plus_resid(i.mod_out)
+
+ols_test_normality(i.mod_out) #Normal
+ols_test_breusch_pagan(i.mod_out, rhs = TRUE) #Homoscedastic
+bptest(i.mod_out, studentize = FALSE)
+
+#Detecting Autocorrelation
+durbinWatsonTest(i.mod_out) #No Autocorrelation
+
+#Detecting Multicollinearity
+
+pairs(data_mod[-c(6,8,9,21,28,29,43,47,148,297,322), c(6:13,15,17:22)], lower.panel = NULL) 
+as.matrix(vif(i.mod_out))
+cor_matrix.out <- cor(data_mod[-c(6,8,9,21,28,29,43,47,148,297,322), c(6:13,15,17)])
+eigen(cor_matrix.out)
+
+#Condition Number
+(max(eigen(cor_matrix.out)$values)/min(eigen(cor_matrix.out)$values)) #7.069268
+
+#Condition Indices
+as.matrix(sqrt(max(eigen(cor_matrix.out)$values)/eigen(cor_matrix.out)$values)) #max = 2.658810
 
 
 
-
-
-
-
-
-
-
-
+#------------------------------------------------------
+#Variable Selection
+#------------------------------------------------------
 
 
 
