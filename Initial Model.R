@@ -263,19 +263,176 @@ as.matrix(sqrt(max(eigen(cor_matrix2)$values)/eigen(cor_matrix2)$values)) #max =
 
 
 
+#---------------------------------------------------------
+#pi_diff
+#---------------------------------------------------------
+
+#Importing the entire data set
+init.data <- read_xlsx("FinalDataSet_AllVar.xlsx")
+str(init.data)
+
+#---------------------------------------------------------
+#Removing all observations with NAs
+#---------------------------------------------------------
+data_mod <- na.omit(init.data)
+str(data_mod)
+View(data_mod)
+
+#--------------------------------------------------------
+#Fitting initial model with 17 Predictors
+#--------------------------------------------------------
+i.mod_pi <- lm(perc_votes_2019~perc_votes_2016
+            +assets_ave_perc_chg
+            +liab_ave_perc_chg
+            +rev_ave_perc_chg
+            +exp_ave_perc_chg
+            +pi_diff
+            +co2_ave_perc_chg
+            +hum_ave_perc_chg
+            +prec_ave_perc_chg
+            +precmax_ave_prec_chg
+            +temp_ave_perc_chg
+            +maxtemp_ave_prec_chg
+            +factor(ruling_party)
+            +factor(sex)
+            +factor(case_inv)
+            +factor(executive)
+            +factor(legislative)
+            ,data = data_mod)
+
+#Model Adequacy
+summary(i.mod_pi) #R^2_a = 0.3575
+anova(i.mod_pi) #MSE = 141.1
+
+#Partial Regression and Partial Residual Plots
+ols_plot_added_variable(i.mod_pi)
+ols_plot_comp_plus_resid(i.mod_pi)
+
+#--------------------------------------------------------
+#Diagnostic Analysis
+#--------------------------------------------------------
+#Detecting Nonnormality and Heteroscedasticity
+par(mfrow = c(2,2))
+plot(i.mod_pi)
+
+ols_test_normality(i.mod_pi) #Normal
+ols_test_breusch_pagan(i.mod_pi, rhs = TRUE) #Homoscedastic
+bptest(i.mod_pi, studentize = FALSE)
+
+#Detecting Autocorrelation
+durbinWatsonTest(i.mod_pi) #No Autocorrelation
+
+#Detecting Multicollinearity
+as.matrix(vif(i.mod_pi))
+
+pairs(data_mod[, c(6:16)], lower.panel = NULL) 
+cor_matrix_pi <- cor(data_mod[, c(6:10, 12:17, 24)])
+eigen(cor_matrix_pi)
+
+#Condition Number
+max(eigen(cor_matrix_pi)$values)/min(eigen(cor_matrix_pi)$values) #82.79064
+
+#Condition Indices
+as.matrix(sqrt(max(eigen(cor_matrix_pi)$values)/eigen(cor_matrix_pi)$values)) #max = 9.098936
+
+#------------------------------------------------------
+#Outliers and Influential Observations
+#------------------------------------------------------
+which(ols_leverage(i.mod_pi)>(2*18/326))
+# 8   9  21  28  29  43  47 290 313 315 322
 
 
+which(!is.na(ols_plot_resid_stud(i.mod_pi)[[1]][,5]))
+# null
 
 
+i.mod_pi.out1 <- lm(perc_votes_2019~perc_votes_2016
+                 +assets_ave_perc_chg
+                 +liab_ave_perc_chg
+                 +rev_ave_perc_chg
+                 +exp_ave_perc_chg
+                 +pi_diff
+                 +co2_ave_perc_chg
+                 +hum_ave_perc_chg
+                 +prec_ave_perc_chg
+                 +precmax_ave_prec_chg
+                 +temp_ave_perc_chg
+                 +maxtemp_ave_prec_chg
+                 +factor(ruling_party)
+                 +factor(sex)
+                 +factor(case_inv)
+                 +factor(executive)
+                 +factor(legislative)
+                 ,data = data_mod[-c(8,9,21,28,29,43,47,290,313,315,322),])
+data_mod[c(8,9,21,28,29,43,47,290,313,315,322), 5]
+predict(i.mod_pi.out1, data_mod[c(8,9,21,28,29,43,47,290,313,315,322), c(6:10, 12:22, 24)], interval = "prediction")
 
 
+#------------------------------------------------------
+#Fitting a model with removed outliers and influential obs
+#------------------------------------------------------
+summary(i.mod_pi.out1) #R^2_a = 0.3466
+anova(i.mod_pi.out1) #MSE = 142.0
 
 
+#------------------------------------------------------
+#Variable Selection
+#------------------------------------------------------
+ols_step_forward_p(i.mod_pi.out1) #R_a^2 = 0.3586
+ols_step_backward_p(i.mod_pi.out1) #R_a^2 = 0.3586
+ols_step_both_p(i.mod_pi.out1) #R_a^2 = 0.3560
+
+i.mod_pi.red <- lm(perc_votes_2019~perc_votes_2016
+                    #+assets_ave_perc_chg
+                    #+liab_ave_perc_chg
+                    #+rev_ave_perc_chg
+                    +exp_ave_perc_chg
+                    +pi_diff
+                    +co2_ave_perc_chg
+                    +hum_ave_perc_chg
+                    #+prec_ave_perc_chg
+                    #+precmax_ave_prec_chg
+                    #+temp_ave_perc_chg
+                    #+maxtemp_ave_prec_chg
+                    #+factor(ruling_party)
+                    +factor(sex)
+                    +factor(case_inv)
+                    +factor(executive)
+                    +factor(legislative)
+                    ,data = data_mod[-c(8,9,21,28,29,43,47,290,313,315,322),])
+summary(i.mod_pi.red)
+anova(i.mod_pi.red)
 
 
+#--------------------------------------------------------
+#Diagnostic Analysis
+#--------------------------------------------------------
+#Detecting Nonnormality and Heteroscedasticity
+par(mfrow = c(2,2))
+plot(i.mod_pi.red)
+
+ols_test_normality(i.mod_pi.red) #Normal
+ols_test_breusch_pagan(i.mod_pi.red, rhs = TRUE) #Homoscedastic
+bptest(i.mod_pi.red, studentize = FALSE)
+
+#Detecting Autocorrelation
+durbinWatsonTest(i.mod_pi.red) #No Autocorrelation
+
+#Detecting Multicollinearity
+as.matrix(vif(i.mod_pi.red))
+
+pairs(data_mod[, c(6:16)], lower.panel = NULL) 
+cor_matrix_pi <- cor(data_mod[, c(6:10, 12:17, 24)])
+eigen(cor_matrix_pi)
+
+#Condition Number
+max(eigen(cor_matrix_pi)$values)/min(eigen(cor_matrix_pi)$values) #82.79064
+
+#Condition Indices
+as.matrix(sqrt(max(eigen(cor_matrix_pi)$values)/eigen(cor_matrix_pi)$values)) #max = 9.098936
 
 
-
+which(ols_leverage(i.mod_pi.red)>(2*10/315))
 
 
 
