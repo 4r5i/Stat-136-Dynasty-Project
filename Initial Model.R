@@ -432,7 +432,7 @@ max(eigen(cor_matrix_pi)$values)/min(eigen(cor_matrix_pi)$values) #82.79064
 as.matrix(sqrt(max(eigen(cor_matrix_pi)$values)/eigen(cor_matrix_pi)$values)) #max = 9.098936
 
 
-which(ols_leverage(i.mod_pi.red)>(2*10/315))
+
 
 
 
@@ -602,8 +602,151 @@ as.matrix(sqrt(max(eigen(cor_matrix.out)$values)/eigen(cor_matrix.out)$values)) 
 
 
 
+#--------------------------------------------------------
+#-----With DPWH-------------------------------------
+i <- lm(perc_votes_2019~perc_votes_2016
+            +assets_ave_perc_chg
+            +liab_ave_perc_chg
+            +rev_ave_perc_chg
+            +exp_ave_perc_chg
+            +pi_diff
+            +co2_ave_perc_chg
+            +hum_ave_perc_chg
+            +prec_ave_perc_chg
+            +precmax_ave_prec_chg
+            +temp_ave_perc_chg
+            +maxtemp_ave_prec_chg
+            +total_dpwh
+            +factor(ruling_party)
+            +factor(sex)
+            +factor(case_inv)
+            +factor(executive)
+            +factor(legislative)
+            ,data = data_mod)
+summary(i)
+anova(i)
+ols_plot_added_variable(i)
+
+ols_step_forward_p(i)
+ols_step_backward_p(i)
+
+#--------------------------------------------------------
+#Diagnostic Analysis
+#--------------------------------------------------------
+#Detecting Nonnormality and Heteroscedasticity
+par(mfrow = c(2,2))
+plot(i)
+
+ols_test_normality(i) #Normal
+ols_test_breusch_pagan(i, rhs = TRUE) #Homoscedastic
+bptest(i, studentize = FALSE)
+
+#Detecting Autocorrelation
+durbinWatsonTest(i) #No Autocorrelation
+
+#Detecting Multicollinearity
+as.matrix(vif(i))
+
+pairs(data_mod[, c(6:16)], lower.panel = NULL) 
+cor_matrix <- cor(data_mod[, c(6:17)])
+eigen(cor_matrix)
+
+#Condition Number
+max(eigen(cor_matrix)$values)/min(eigen(cor_matrix)$values) #82.73437
+
+#Condition Indices
+as.matrix(sqrt(max(eigen(cor_matrix)$values)/eigen(cor_matrix)$values)) #max = 7.826570
+
+#------------------------------------------------------
+#Outliers and Influential Observations
+#------------------------------------------------------
+which(ols_leverage(i)>(2*19/326))
+# 2   8   9  21  28  29  43  59 166 290 313 315
+which(!is.na(ols_plot_resid_stud(i)[[1]][,5]))
+# Null
+
+which(!is.na(ols_plot_cooksd_chart(i)[[1]][,5]))
+# 11  28  29  39  43  46  47  55  56  66 101 173 243 309 319
+which(!is.na(ols_plot_dffits(i.mod)[[1]][,5]))
+# 11  29  43  46  47  56  66 101 168 202 243 309 311 316 319
+
+i.out <- lm(perc_votes_2019~perc_votes_2016
+                +assets_ave_perc_chg
+                +liab_ave_perc_chg
+                +rev_ave_perc_chg
+                +exp_ave_perc_chg
+                +pi_diff
+                +co2_ave_perc_chg
+                +hum_ave_perc_chg
+                +prec_ave_perc_chg
+                +precmax_ave_prec_chg
+                +temp_ave_perc_chg
+                +maxtemp_ave_prec_chg
+                +total_dpwh
+                +factor(ruling_party)
+                +factor(sex)
+                +factor(case_inv)
+                +factor(executive)
+                +factor(legislative)
+                ,data = data_mod[-c(2,8,9,21,28,29,43,59,166,290,313,315),])
+data_mod[c(2,8,9,21,28,29,43,59,166,290,313,315), 5]
+predict(i.out, data_mod[c(2,8,9,21,28,29,43,59,166,290,313,315), c(6:10,12:24)], interval = "prediction")
+
+summary(i.out)
+anova(i.out)
 
 
+#Detecting Nonnormality and Heteroscedasticity
+par(mfrow = c(2,2))
+plot(i.out)
+
+ols_test_normality(i) #Normal
+ols_test_breusch_pagan(i, rhs = TRUE) #Homoscedastic
+bptest(i, studentize = FALSE)
+
+#Detecting Autocorrelation
+durbinWatsonTest(i) #No Autocorrelation
+
+#Detecting Multicollinearity
+as.matrix(vif(i.out))
+
+pairs(data_mod[, c(6:16)], lower.panel = NULL) 
+cor_matrix <- cor(data_mod[, c(6:10, 12:17,23,24)])
+eigen(cor_matrix)
+
+#Condition Number
+max(eigen(cor_matrix)$values)/min(eigen(cor_matrix)$values) #84.56099
+
+#Condition Indices
+as.matrix(sqrt(max(eigen(cor_matrix)$values)/eigen(cor_matrix)$values)) #max = 9.195705
+
+
+
+ols_step_forward_p(i.out)
+ols_step_backward_p(i.out)
+ols_step_both_p(i.out)
+i.out_red <- lm(perc_votes_2019~perc_votes_2016
+            #+assets_ave_perc_chg
+            +liab_ave_perc_chg
+            #+rev_ave_perc_chg
+            +exp_ave_perc_chg
+            +pi_diff
+            +co2_ave_perc_chg
+            +hum_ave_perc_chg
+            #+prec_ave_perc_chg
+            +precmax_ave_prec_chg
+            #+temp_ave_perc_chg
+            #+maxtemp_ave_prec_chg
+            #+total_dpwh
+            #+factor(ruling_party)
+            +factor(sex)
+            +factor(case_inv)
+            #+factor(executive)
+            +factor(legislative)
+            ,data = data_mod[-c(2,8,9,21,28,29,43,59,166,290,313,315),])
+summary(i.out_red)
+anova(i.out_red)
+ols_plot_added_variable(i.out_red)
 #--------------------------------------------------------
 #-----PLAYGRUND char-------------------------------------
 #PCR
