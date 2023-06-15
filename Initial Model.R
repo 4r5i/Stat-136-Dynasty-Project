@@ -41,8 +41,8 @@ i.mod <- lm(perc_votes_2019~perc_votes_2016
                ,data = data_mod)
 
 #Model Adequacy
-summary(i.mod) #R^2_a = 0.3557
-anova(i.mod) #MSE = 141.5
+ols_regress(i.mod)#R^2_a = 0.3557; MSE = 142.199 
+summary(i.mod)
 
 #Partial Regression and Partial Residual Plots
 ols_plot_added_variable(i.mod)
@@ -80,7 +80,7 @@ as.matrix(sqrt(max(eigen(cor_matrix)$values)/eigen(cor_matrix)$values)) #max = 9
 #------------------------------------------------------
 which(ols_leverage(i.mod)>(2*19/326))
 # 2   8   9  21  28  29  43  59 166 290 313 315
-
+data_mod[c(2,8,9,21,28,29,43,59,166,290,313,315),c(2,3)]
 #1 NCR                TAGUIG CITY             
 #2 ABRA               PILAR                   
 #3 ABRA               SALLAPADAN              
@@ -159,8 +159,8 @@ predict(i.mod_out1, data_mod[c(2,8,9,21,28,29,43,59,166,290,313,315), c(5:22)], 
 #All outlying observations can be removed. 
 #Fitting a model with removed outliers and influential obs
 #------------------------------------------------------
-summary(i.mod_out1) #R^2_a = 0.3585
-anova(i.mod_out1) #MSE = 141.6
+ols_regress(i.mod_out1) #R^2_a = 0.3585 #MSE = 141.6
+summary(i.mod_out1)
 
 #Detecting Nonnormality and Heteroscedascticity
 plot(i.mod_out1)
@@ -193,7 +193,7 @@ as.matrix(sqrt(max(eigen(cor_matrix1)$values)/eigen(cor_matrix1)$values)) #max =
 #------------------------------------------------------
 ols_step_forward_p(i.mod_out1) #R_a^2 = 0.3721
 ols_step_backward_p(i.mod_out1) #R_a^2 = 0.3721
-ols_step_both_aic(i.mod_out1) #R_a^2 = 0.37061
+ols_step_both_p(i.mod_out1) #R_a^2 = 0.37061
 
 i.mod1_red <- lm(perc_votes_2019~perc_votes_2016
              #+assets_ave_perc_chg
@@ -215,8 +215,8 @@ i.mod1_red <- lm(perc_votes_2019~perc_votes_2016
              +factor(legislative)
              ,data = data_mod[-c(2,8,9,21,28,29,43,59,166,290,313,315),])
 
-summary(i.mod1_red) #R_a^2 = 0.3721
-anova(i.mod1_red) #MSE = 138.6
+ols_regress(i.mod1_red)
+summary(i.mod1_red) #R_a^2 = 0.3721 #MSE = 138.6
 
 #Detecting Nonnormality and Heteroscedascticity
 plot(i.mod1_red)
@@ -241,20 +241,178 @@ max(eigen(cor_matrix2)$values)/min(eigen(cor_matrix2)$values) #3.742283
 #Condition Indices
 as.matrix(sqrt(max(eigen(cor_matrix2)$values)/eigen(cor_matrix2)$values)) #max = 1.934498
 
+#------------------------------------------------------
+#Adding Regionality
+#------------------------------------------------------
+
+dataNew <- data_mod[-c(2,8,9,21,28,29,43,59,166,290,313,315),]
+i<- lm(perc_votes_2019~perc_votes_2016
+                 #+assets_ave_perc_chg
+                 +liab_ave_perc_chg
+                 #+rev_ave_perc_chg
+                 +exp_ave_perc_chg
+                 +pi_diff
+                 +co2_ave_perc_chg
+                 +hum_ave_perc_chg
+                 #+prec_ave_perc_chg
+                 #+precmax_ave_prec_chg
+                 #+temp_ave_perc_chg
+                 #+maxtemp_ave_prec_chg
+                 #+total_dpwh
+                 #+factor(ruling_party)
+                 +factor(sex)
+                 +factor(case_inv)
+                 +factor(executive)
+                 +factor(legislative)
+                 +factor(region)
+                 ,data = dataNew)
+summary(i)
+#factor(region)IX (Zamboanga Peninsula) *
+#factor(region)VII (Central Visayas)    * 
+#factor(region)XI (Davao Region)        *
+#factor(region)XII (SOCCSKSARGEN)       ** 
+
+
+#Fitting a model with reg = regions significant in the model with factor(region)
+i1<- lm(perc_votes_2019~perc_votes_2016
+       #+assets_ave_perc_chg
+       +liab_ave_perc_chg
+       #+rev_ave_perc_chg
+       +exp_ave_perc_chg
+       +pi_diff
+       +co2_ave_perc_chg
+       +hum_ave_perc_chg
+       #+prec_ave_perc_chg
+       +precmax_ave_prec_chg
+       #+temp_ave_perc_chg
+       #+maxtemp_ave_prec_chg
+       #+total_dpwh
+       #+factor(ruling_party)
+       +factor(sex)
+       +factor(case_inv)
+       +factor(executive)
+       +factor(legislative)
+       +factor(reg)
+       ,data = dataNew)
+summary(i1) #R^2_a = 0.3862 
+anova(i1) #MSE = 135.5
+
+ols_step_forward_p(i1) #all variables included
+ols_step_backward_p(i1)
+ols_step_both_p(i1)
+
+i2<- lm(perc_votes_2019~perc_votes_2016
+        #+assets_ave_perc_chg
+        +liab_ave_perc_chg
+        #+rev_ave_perc_chg
+        +exp_ave_perc_chg
+        #+pi_diff
+        +co2_ave_perc_chg
+        +hum_ave_perc_chg
+        #+prec_ave_perc_chg
+        #+precmax_ave_prec_chg
+        #+temp_ave_perc_chg
+        #+maxtemp_ave_prec_chg
+        #+total_dpwh
+        #+factor(ruling_party)
+        +factor(sex)
+        +factor(case_inv)
+        #+factor(executive)
+        +factor(legislative)
+        +factor(reg)
+        ,data = dataNew)
+summary(i2) #R^2_a = 0.3839
+anova(i2) #MSE = 136
 
 
 
+i3<- lm(perc_votes_2019~
+        #perc_votes_2016
+        #+assets_ave_perc_chg
+        #+liab_ave_perc_chg
+        #+rev_ave_perc_chg
+        #+exp_ave_perc_chg
+        +pi_diff
+        #+co2_ave_perc_chg
+        #+hum_ave_perc_chg
+        #+prec_ave_perc_chg
+        +precmax_ave_prec_chg
+        #+temp_ave_perc_chg
+        #+maxtemp_ave_prec_chg
+        #+total_dpwh
+        #+factor(ruling_party)
+        #+factor(sex)
+        #+factor(case_inv)
+        +factor(executive)
+        #+factor(legislative)
+        #+factor(reg)
+        ,data = dataNew[dataNew$reg==1,])
+summary(i3)
+i4<- lm(perc_votes_2019~
+          #perc_votes_2016
+          #+assets_ave_perc_chg
+          #+liab_ave_perc_chg
+          #+rev_ave_perc_chg
+          #+exp_ave_perc_chg
+          +pi_diff
+        #+co2_ave_perc_chg
+        #+hum_ave_perc_chg
+        #+prec_ave_perc_chg
+        +precmax_ave_prec_chg
+        #+temp_ave_perc_chg
+        #+maxtemp_ave_prec_chg
+        #+total_dpwh
+        #+factor(ruling_party)
+        #+factor(sex)
+        #+factor(case_inv)
+        +factor(executive)
+        #+factor(legislative)
+        #+factor(reg)
+        ,data = dataNew[dataNew$reg==0,])
+summary(i4)
 
 
+i2<- lm(perc_votes_2019~perc_votes_2016
+        #+assets_ave_perc_chg
+        #+liab_ave_perc_chg
+        #+rev_ave_perc_chg
+        #+exp_ave_perc_chg
+        #+pi_diff
+        #+co2_ave_perc_chg
+        #+hum_ave_perc_chg
+        #+prec_ave_perc_chg
+        +precmax_ave_prec_chg
+        #+temp_ave_perc_chg
+        #+maxtemp_ave_prec_chg
+        #+total_dpwh
+        #+factor(ruling_party)
+        #+factor(sex)
+        #+factor(case_inv)
+        #+factor(executive)
+        +factor(legislative)
+        #+factor(reg)
+        ,data = dataNew[dataNew$reg==1,])
+summary(i2)
 
+ols_test_normality(i) #Normal
+ols_test_breusch_pagan(i, rhs = TRUE) #Homoscedastic
+bptest(i, studentize = FALSE)
 
+#Detecting Autocorrelation
+durbinWatsonTest(i) #No Autocorrelation
 
+scatterplot(dataNew[dataNew$reg == 1,]$precmax_ave_prec_chg,dataNew[dataNew$reg == 1,]$perc_votes_2019)
+scatterplot(dataNew[dataNew$reg == 0,]$precmax_ave_prec_chg,dataNew[dataNew$reg == 0,]$perc_votes_2019)
 
+plot(dataNew[dataNew$reg == 1,]$precmax_ave_prec_chg)
+plot(dataNew[dataNew$reg == 0,]$precmax_ave_prec_chg)
 
+library(car)
+par(mfrow = c(1,2))
+Boxplot(dataNew[dataNew$reg == 1,]$precmax_ave_prec_chg)
+Boxplot(dataNew[dataNew$reg == 0,]$precmax_ave_prec_chg)
 
-
-
-
+plot()
 
 #---------------------------------------------------------
 #pi_diff
