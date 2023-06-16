@@ -324,7 +324,49 @@ i2<- lm(perc_votes_2019~perc_votes_2016
 summary(i2) #R^2_a = 0.3839
 anova(i2) #MSE = 136
 
+i1<- lm(perc_votes_2019~perc_votes_2016
+        #+assets_ave_perc_chg
+        +liab_ave_perc_chg
+        #+rev_ave_perc_chg
+        +exp_ave_perc_chg
+        #+pi_diff
+        +co2_ave_perc_chg
+        +hum_ave_perc_chg
+        #+prec_ave_perc_chg
+        #+precmax_ave_prec_chg
+        #+temp_ave_perc_chg
+        #+maxtemp_ave_prec_chg
+        #+total_dpwh
+        #+factor(ruling_party)
+        +factor(sex)
+        +factor(case_inv)
+        #+factor(executive)
+        +factor(legislative)
+        #+factor(reg)
+        ,data = dataNew[dataNew$reg == 0,])
+summary(i1)
 
+i1<- lm(perc_votes_2019~perc_votes_2016
+        #+assets_ave_perc_chg
+        +liab_ave_perc_chg
+        #+rev_ave_perc_chg
+        +exp_ave_perc_chg
+        #+pi_diff
+        +co2_ave_perc_chg
+        +hum_ave_perc_chg
+        #+prec_ave_perc_chg
+        #+precmax_ave_prec_chg
+        #+temp_ave_perc_chg
+        #+maxtemp_ave_prec_chg
+        #+total_dpwh
+        #+factor(ruling_party)
+        +factor(sex)
+        +factor(case_inv)
+        #+factor(executive)
+        +factor(legislative)
+        #+factor(reg)
+        ,data = dataNew[dataNew$reg == 1,])
+summary(i1)
 
 i3<- lm(perc_votes_2019~
         #perc_votes_2016
@@ -336,14 +378,14 @@ i3<- lm(perc_votes_2019~
         #+co2_ave_perc_chg
         #+hum_ave_perc_chg
         #+prec_ave_perc_chg
-        +precmax_ave_prec_chg
+        #+precmax_ave_prec_chg
         #+temp_ave_perc_chg
         #+maxtemp_ave_prec_chg
         #+total_dpwh
         #+factor(ruling_party)
         #+factor(sex)
         #+factor(case_inv)
-        +factor(executive)
+        #+factor(executive)
         #+factor(legislative)
         #+factor(reg)
         ,data = dataNew[dataNew$reg==1,])
@@ -358,14 +400,14 @@ i4<- lm(perc_votes_2019~
         #+co2_ave_perc_chg
         #+hum_ave_perc_chg
         #+prec_ave_perc_chg
-        +precmax_ave_prec_chg
+        #+precmax_ave_prec_chg
         #+temp_ave_perc_chg
         #+maxtemp_ave_prec_chg
         #+total_dpwh
         #+factor(ruling_party)
         #+factor(sex)
         #+factor(case_inv)
-        +factor(executive)
+        #+factor(executive)
         #+factor(legislative)
         #+factor(reg)
         ,data = dataNew[dataNew$reg==0,])
