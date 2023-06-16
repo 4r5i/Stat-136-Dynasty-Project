@@ -5,6 +5,7 @@ library(car)
 library(lmtest)
 library(pls)
 library(dplyr)
+library(psych)
 
 #Importing the entire data set
 init.data <- read_xlsx("FinalDataSet_AllVar.xlsx")
@@ -16,6 +17,11 @@ str(init.data)
 data_mod <- na.omit(init.data)
 str(data_mod)
 View(data_mod)
+
+#---------------------------------------------------------
+#Preliminary Analysis
+#---------------------------------------------------------
+describe(data_mod[,5:17])
 
 #--------------------------------------------------------
 #Fitting initial model with 18 Predictors
@@ -194,7 +200,7 @@ as.matrix(sqrt(max(eigen(cor_matrix1)$values)/eigen(cor_matrix1)$values)) #max =
 ols_step_forward_p(i.mod_out1) #R_a^2 = 0.3721
 ols_step_backward_p(i.mod_out1) #R_a^2 = 0.3721
 ols_step_both_p(i.mod_out1) #R_a^2 = 0.37061
-
+ols_step_all_possible(i.mod_out1)
 i.mod1_red <- lm(perc_votes_2019~perc_votes_2016
              #+assets_ave_perc_chg
              +liab_ave_perc_chg
