@@ -73,8 +73,20 @@ as.matrix(vif(i.mod))
 
 pairs(data_mod[, c(5:17)], lower.panel = NULL) 
 cor_matrix <- cor(data_mod[, c(5:17)])
-eigen(cor_matrix)
 
+
+eigen(cor_matrix)
+library(corrplot)
+library(RColorBrewer)
+
+cordata<-data_mod[, c(5:17)]
+colnames()<-c("Successor", "Assets", "Liabilities",
+                                 "Revenue", "Expenses", "Poverty", "CO2",
+                                 "Precipitation", "Max Precipitation", 
+                                 "Temperature", "Max Temperature",
+                                 "Humidity", "Infrastracture")
+corrplot(cor(cordata), method = "color", type = "upper",
+         col = brewer.pal(n=8, name="RdYlBu"))
 #Condition Number
 max(eigen(cor_matrix)$values)/min(eigen(cor_matrix)$values) #84.56099
 
@@ -107,9 +119,54 @@ which(!is.na(ols_plot_cooksd_chart(i.mod)[[1]][,5]))
 # 2   8  11  29  43  46  47 166 168 202 243 286 309 311 316 319
 which(!is.na(ols_plot_dffits(i.mod)[[1]][,5]))
 # 2   8  11  29  43  46  47 166 168 202 243 286 309 311 316 319
+which(abs(dfbetas(i.mod)[,1])>2/sqrt(326))
+# 10  11  43  46  55  61  66  72  75  76  77  78 155 243 286 298 311 315 316 
+which(abs(dfbetas(i.mod)[,2])>2/sqrt(326))
+#22  24  43  44  46  47  55  66  77  78  85  97 115 140 145 162 177 
+#187 202 204 206 209 286 287 288 289 309 312 319 
+which(abs(dfbetas(i.mod)[,3])>2/sqrt(326))
+# 6   9  17  21  28  30  33  43  44  47  56 242 286 319 
+which(abs(dfbetas(i.mod)[,4])>2/sqrt(326))
+#28 29
+which(abs(dfbetas(i.mod)[,5])>2/sqrt(326))
+#8 43 66 77
+which(abs(dfbetas(i.mod)[,6])>2/sqrt(326))
+#6   8  28  43  47  56 242 319 
+which(abs(dfbetas(i.mod)[,7])>2/sqrt(326))
+#16  17  24  25  39  43  44  45  46  49  50  51  52 101 219 243 268 
+#284 287 288 289 315 319 325
+which(abs(dfbetas(i.mod)[,8])>2/sqrt(326))
+#10  11  43  46  55  66  72  75  76  77  78 155 243 286 298 311 315 316 
+which(abs(dfbetas(i.mod)[,9])>2/sqrt(326))
+#11  77  97 150 162 168 177 201 202 209 211 242 243 300 310 311 315 316 319 325 
+which(abs(dfbetas(i.mod)[,10])>2/sqrt(326))
+#16  46  47  55  56  80  82  83  85 101 162 172 173 243 288 298 309 318 321 
+which(abs(dfbetas(i.mod)[,11])>2/sqrt(326))
+#17  32  43  47 119 125 131 140 155 173 194 202 206 242 243 303 309
+which(abs(dfbetas(i.mod)[,12])>2/sqrt(326))
+#56  66  77  82  97 101 114 123 129 131 140 162 168 173 202 271 296 
+#302 310 311 315 316 317 319 
+which(abs(dfbetas(i.mod)[,13])>2/sqrt(326))
+#11  66 101 114 116 131 140 162 168 173 209 296 302 309 311 313 315 
+#316 317 319 325
+which(abs(dfbetas(i.mod)[,14])>2/sqrt(326))
+# 2  52 125 135 140 143 166 286 292 323 
+which(abs(dfbetas(i.mod)[,15])>2/sqrt(326))
+#11  39  49  55  75  78 119 125 145 155 162 168 173 202 208 219 276 
+#286 310 317 319
+which(abs(dfbetas(i.mod)[,16])>2/sqrt(326))
+#33  83 120 125 140 152 166 208 213 216 219 226 243 284 301 309 319 
+which(abs(dfbetas(i.mod)[,17])>2/sqrt(326))
+#11  39  46  47  66  76  80  85 119 129 194 213 216 226 243 271 286 326
+which(abs(dfbetas(i.mod)[,18])>2/sqrt(326))
+# 20  39  43  46  47  51  78  82 114 135 166 173 202 206 208 264 286 
+# 295 317 319 323 
+which(abs(dfbetas(i.mod)[,19])>2/sqrt(326))
+#2  44  46  47  66  78  82 115 123 155 168 173 187 206 208 288 309 
+#310 
 
 ols_plot_dfbetas(i.mod)
-
+str(as.matrix(dfbetas(i.mod)))
 
 i.mod_out1 <- lm(perc_votes_2019~perc_votes_2016
                 +assets_ave_perc_chg
@@ -130,7 +187,7 @@ i.mod_out1 <- lm(perc_votes_2019~perc_votes_2016
                 +factor(executive)
                 +factor(legislative)
                 ,data = data_mod[-c(2,8,9,21,28,29,43,59,166,290,313,315),])
-data_mod[c(2,8,9,21,28,29,43,59,166,290,313,315), 4]
+View(data_mod[c(2,8,9,21,28,29,43,59,166,290,313,315), c(2,3,4:22)])
 predict(i.mod_out1, data_mod[c(2,8,9,21,28,29,43,59,166,290,313,315), c(5:22)], interval = "prediction")
 
 #perc_votes_2019
@@ -200,6 +257,11 @@ as.matrix(sqrt(max(eigen(cor_matrix1)$values)/eigen(cor_matrix1)$values)) #max =
 ols_step_forward_p(i.mod_out1) #R_a^2 = 0.3721
 ols_step_backward_p(i.mod_out1) #R_a^2 = 0.3721
 ols_step_both_p(i.mod_out1) #R_a^2 = 0.37061
+
+ols_step_forward_aic(i.mod_out1) 
+ols_step_backward_aic(i.mod_out1)
+ols_step_both_aic(i.mod_out1) 
+
 ols_step_all_possible(i.mod_out1)
 i.mod1_red <- lm(perc_votes_2019~perc_votes_2016
              #+assets_ave_perc_chg
