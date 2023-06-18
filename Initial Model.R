@@ -111,6 +111,7 @@ data_mod[c(2,8,9,21,28,29,43,59,166,290,313,315),c(2,3)]
 #10 Misamis Occidental Concepcion              
 #11 Agusan del Sur     La Paz                  
 #12 Agusan del Sur     San Luis   
+ols_leverage(i.mod)[c(2,8,9,21,28,29,43,59,166,290,313,315)]
 
 which(!is.na(ols_plot_resid_stud(i.mod)[[1]][,5]))
 # Null
@@ -119,6 +120,10 @@ which(!is.na(ols_plot_cooksd_chart(i.mod)[[1]][,5]))
 # 2   8  11  29  43  46  47 166 168 202 243 286 309 311 316 319
 which(!is.na(ols_plot_dffits(i.mod)[[1]][,5]))
 # 2   8  11  29  43  46  47 166 168 202 243 286 309 311 316 319
+
+#Influential Outliers
+#2 8 29 43 166
+
 which(abs(dfbetas(i.mod)[,1])>2/sqrt(326))
 # 10  11  43  46  55  61  66  72  75  76  77  78 155 243 286 298 311 315 316 
 which(abs(dfbetas(i.mod)[,2])>2/sqrt(326))
@@ -189,6 +194,30 @@ i.mod_out1 <- lm(perc_votes_2019~perc_votes_2016
                 ,data = data_mod[-c(2,8,9,21,28,29,43,59,166,290,313,315),])
 View(data_mod[c(2,8,9,21,28,29,43,59,166,290,313,315), c(2,3,4:22)])
 predict(i.mod_out1, data_mod[c(2,8,9,21,28,29,43,59,166,290,313,315), c(5:22)], interval = "prediction")
+
+
+i.mod_out1 <- lm(perc_votes_2019~perc_votes_2016
+                 +assets_ave_perc_chg
+                 +liab_ave_perc_chg
+                 +rev_ave_perc_chg
+                 +exp_ave_perc_chg
+                 +pi_diff
+                 +co2_ave_perc_chg
+                 +hum_ave_perc_chg
+                 +prec_ave_perc_chg
+                 +precmax_ave_prec_chg
+                 +temp_ave_perc_chg
+                 +maxtemp_ave_prec_chg
+                 +total_dpwh
+                 +factor(ruling_party)
+                 +factor(sex)
+                 +factor(case_inv)
+                 +factor(executive)
+                 +factor(legislative)
+                 ,data = data_mod[-c(8, 29, 43, 9,21,28,59,290,313,315),])
+View(data_mod[c(8, 29, 43, 9,21,28,59,290,313,315), c(2,3,4:22)])
+predict(i.mod_out1, data_mod[c(8, 29, 43, 9,21,28,59,290,313,315), c(5:22)], interval = "prediction")
+
 
 #perc_votes_2019
 #1            59.3
